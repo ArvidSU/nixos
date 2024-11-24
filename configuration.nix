@@ -23,7 +23,10 @@
   # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
 
   # Enable networking
-  networking.networkmanager.enable = true;
+  networking.networkmanager = {
+    enable = true;
+    dns = "systemd-resolved";
+  };
 
   # Set your time zone.
   time.timeZone = "Europe/Stockholm";
@@ -53,6 +56,25 @@
   services.avahi = {
     enable = true;
     nssmdns4 = true;
+    publish = {
+      enable = true;
+      addresses = true;
+      domain = true;
+      hinfo = true;
+      userServices = true;
+    };
+    openFirewall = true;
+  };
+
+  services.resolved = {
+    enable = true;
+    dnssec = "false";
+    domains = [ "~." ];
+    fallbackDns = [ "1.1.1.1" "8.8.8.8" ];
+    extraConfig = ''
+      MulticastDNS=yes
+      LLMNR=yes
+    '';
   };
 
   # Enable the GNOME Desktop Environment.
@@ -172,10 +194,12 @@
     discord
     obsidian
     steam
+    #linuxKernel.packages.linux_6_6.xone
     wget
     openrgb  
     prusa-slicer
     avahi
+    nssmdns
     ollama
 
     # Development
@@ -196,6 +220,8 @@
     deluge
   ];
 
+  hardware.xone.enable
+
   programs.nh = {
     enable = true;
     #clean.enable = true;
@@ -204,7 +230,10 @@
 
   programs.git = {
     enable = true;
-    #config = 
+    config = {
+      user.email = "carlarvidsundqvist@gmail.com";
+      user.name = "Arvid Sundqvist";
+    };
   };
 
   services.hardware.openrgb.enable = true; # Does this autostart the openrgb server so that HA can access it?
@@ -268,7 +297,7 @@
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];
-  # networking.firewall.allowedUDPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ 5353 ];
   # Or disable the firewall altogether.
   networking.firewall.enable = false;
 
